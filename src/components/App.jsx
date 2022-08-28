@@ -5,12 +5,15 @@ import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Searchbar } from './Searchbar/Searchbar';
 import { Button } from './Button/Button';
 import { Grid } from 'react-loader-spinner';
+import { Modal } from 'components/Modal/Modal';
+
 export class App extends Component {
   state = {
     images: '',
     page: 1,
     queryName: '',
     isLoading: false,
+    largeImgUrl: '',
   };
 
   componentDidMount() {}
@@ -46,6 +49,9 @@ export class App extends Component {
       this.setState({ isLoading: true });
       getApi(page, queryName)
         .then(data => {
+          if (!data.length) {
+            alert('Oops! No more images were found for this query');
+          }
           this.setState(prevState => ({
             images: [...prevState.images, ...data],
           }));
@@ -73,14 +79,26 @@ export class App extends Component {
     }));
   };
 
+  setLargeImgUrl = e => {
+    this.setState({
+      largeImgUrl: e.target.dataset.url,
+    });
+  };
+
+  closeModal = () => {
+    this.setState({
+      largeImgUrl: '',
+    });
+  };
+
   render() {
-    const { images, isLoading, imagesNotFound } = this.state;
-    const { handleSubmit, handleLoadMore } = this;
+    const { images, isLoading, imagesNotFound, largeImgUrl } = this.state;
+    const { handleSubmit, handleLoadMore, setLargeImgUrl } = this;
 
     return (
       <div className={styles.App}>
         <Searchbar onSubmit={handleSubmit} />
-        <ImageGallery images={images} />
+        <ImageGallery images={images} onClick={setLargeImgUrl} />
         {images.length && !imagesNotFound && (
           <Button onClick={handleLoadMore} />
         )}
@@ -98,6 +116,7 @@ export class App extends Component {
             />
           </div>
         )}
+        {largeImgUrl && <Modal url={largeImgUrl} onClick={this.closeModal} />}
       </div>
     );
   }

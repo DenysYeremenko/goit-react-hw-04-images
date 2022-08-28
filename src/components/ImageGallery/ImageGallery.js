@@ -1,7 +1,7 @@
 import styles from './ImageGallery.module.css';
 import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
 
-export const ImageGallery = ({ images }) => {
+export const ImageGallery = ({ images, onClick }) => {
   return (
     <ul className={styles.ImageGallery}>
       {images &&
@@ -11,6 +11,7 @@ export const ImageGallery = ({ images }) => {
               key={id}
               webformatURL={webformatURL}
               largeImageURL={largeImageURL}
+              onClick={onClick}
             />
           );
         })}
