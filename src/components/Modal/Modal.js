@@ -15,6 +15,7 @@ export const Modal = ({ url, onClick }) => {
       console.log('Unmount');
       window.removeEventListener('keydown', handleKeydown);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

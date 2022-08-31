@@ -16,10 +16,12 @@ export const App = () => {
 
   useEffect(() => {
     queryName && getImages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryName]);
 
   useEffect(() => {
     page > 1 && getMoreImages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   // componentDidUpdate(prevProps, prevState) {
