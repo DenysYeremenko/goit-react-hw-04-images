@@ -1,41 +1,32 @@
 import styles from './Modal.module.css';
-import { Component } from 'react';
 import PropTypes from 'prop-types';
+import { useEffect } from 'react';
 
-export class Modal extends Component {
-  static propTypes = {
-    url: PropTypes.string.isRequired,
-    onClick: PropTypes.func.isRequired,
-  };
-
-  handleKeydown = e => {
+export const Modal = ({ url, onClick }) => {
+  const handleKeydown = e => {
     if (e.key === 'Escape') {
-      this.props.onClick();
+      onClick();
     }
   };
 
-  componentDidMount() {
-    window.addEventListener('keydown', this.handleKeydown);
-  }
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeydown);
+    return () => {
+      console.log('Unmount');
+      window.removeEventListener('keydown', handleKeydown);
+    };
+  }, []);
 
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleKeydown);
-  }
-
-  render() {
-    const { url } = this.props;
-    return (
-      <div
-        className={styles.Overlay}
-        onClick={() => this.props.onClick()}
-        onKeyPress={e => {
-          console.log(e);
-        }}
-      >
-        <div className={styles.Modal}>
-          <img src={url} alt="" />
-        </div>
+  return (
+    <div className={styles.Overlay} onClick={() => onClick()}>
+      <div className={styles.Modal}>
+        <img src={url} alt="" />
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
+
+Modal.propTypes = {
+  url: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
+};
