@@ -1,5 +1,6 @@
 import styles from './Modal.module.css';
 import { Component } from 'react';
+import PropTypes from 'prop-types';
 
 export class Modal extends Component {
   handleKeydown = e => {
@@ -33,3 +34,8 @@ export class Modal extends Component {
     );
   }
 }
+
+Modal.propTypes = {
+  url: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
+};

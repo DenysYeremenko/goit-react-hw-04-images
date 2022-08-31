@@ -4,66 +4,79 @@ import { getApi } from '../services/getApi';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Searchbar } from './Searchbar/Searchbar';
 import { Button } from './Button/Button';
-import { Grid } from 'react-loader-spinner';
+import { Loader } from './Loader/Loader';
 import { Modal } from 'components/Modal/Modal';
 
 export class App extends Component {
   state = {
-    images: '',
+    images: [],
     page: 1,
     queryName: '',
     isLoading: false,
     largeImgUrl: '',
   };
 
-  componentDidMount() {}
-
   componentDidUpdate(prevProps, prevState) {
-    this.getImages(prevState);
-  }
-
-  getImages(prevState) {
-    const { page, queryName } = this.state;
     if (
       (!prevState.images || prevState.queryName !== this.state.queryName) &&
       !this.state.isLoading
     ) {
-      this.setState({ isLoading: true });
-      getApi(1, queryName)
-        .then(data => {
-          if (!data.length) {
-            alert('No images found for this query');
-          }
-          this.setState({
-            images: data,
-            page: 1,
-          });
-        })
-        .catch(err => {
-          console.log(err);
-        })
-        .finally(() => {
-          this.setState({ isLoading: false });
-        });
+      this.getImages();
     } else if (prevState.page < this.state.page && !this.state.isLoading) {
-      this.setState({ isLoading: true });
-      getApi(page, queryName)
-        .then(data => {
-          if (!data.length) {
-            alert('Oops! No more images were found for this query');
-          }
-          this.setState(prevState => ({
-            images: [...prevState.images, ...data],
-          }));
-        })
-        .catch(err => {
-          console.log(err);
-        })
-        .finally(() => {
-          this.setState({ isLoading: false });
-        });
+      this.getMoreImages();
     }
   }
+
+  getImages = () => {
+    const { queryName } = this.state;
+    this.setState({ isLoading: true });
+    getApi(1, queryName)
+      .then(data => {
+        if (!data.length) {
+          alert('No images found for this query');
+        }
+        const filteredImagesArr = data.map(
+          ({ id, largeImageURL, webformatURL }) => {
+            return { id, largeImageURL, webformatURL };
+          }
+        );
+        this.setState({
+          images: filteredImagesArr,
+          page: 1,
+        });
+      })
+      .catch(err => {
+        console.log(err);
+      })
+      .finally(() => {
+        this.setState({ isLoading: false });
+      });
+  };
+
+  getMoreImages = () => {
+    const { page, queryName } = this.state;
+    this.setState({ isLoading: true });
+    getApi(page, queryName)
+      .then(data => {
+        if (!data.length) {
+          alert('Oops! No more images were found for this query');
+        }
+        const filteredImagesArr = data.map(
+          ({ id, largeImageURL, webformatURL }) => {
+            return { id, largeImageURL, webformatURL };
+          }
+        );
+        this.setState(prevState => ({
+          images: [...prevState.images, ...filteredImagesArr],
+        }));
+      })
+      .catch(err => {
+        console.log(err);
+      })
+      .finally(() => {
+        this.setState({ isLoading: false });
+      });
+  };
 
   handleSubmit = e => {
     e.preventDefault();
@@ -92,30 +105,17 @@ export class App extends Component {
   };
 
   render() {
-    const { images, isLoading, imagesNotFound, largeImgUrl } = this.state;
+    const { images, isLoading, largeImgUrl } = this.state;
     const { handleSubmit, handleLoadMore, setLargeImgUrl } = this;
 
     return (
       <div className={styles.App}>
         <Searchbar onSubmit={handleSubmit} />
-        <ImageGallery images={images} onClick={setLargeImgUrl} />
-        {images.length && !imagesNotFound && (
-          <Button onClick={handleLoadMore} />
+        {images.length > 0 && (
+          <ImageGallery images={images} onClick={setLargeImgUrl} />
         )}
-        {isLoading && (
-          <div className={styles.Loader}>
-            <Grid
-              height="80"
-              width="80"
-              color="#3f51b5"
-              ariaLabel="grid-loading"
-              radius="12.5"
-              wrapperStyle={{}}
-              wrapperClass=""
-              visible={true}
-            />
-          </div>
-        )}
+        {images.length > 0 && <Button onClick={handleLoadMore} />}
+        {isLoading && <Loader />}
         {largeImgUrl && <Modal url={largeImgUrl} onClick={this.closeModal} />}
       </div>
     );
