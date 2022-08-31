@@ -3,6 +3,11 @@ import { Component } from 'react';
 import PropTypes from 'prop-types';
 
 export class Modal extends Component {
+  static propTypes = {
+    url: PropTypes.string.isRequired,
+    onClick: PropTypes.func.isRequired,
+  };
+
   handleKeydown = e => {
     if (e.key === 'Escape') {
       this.props.onClick();
@@ -34,8 +39,3 @@ export class Modal extends Component {
     );
   }
 }
-
-Modal.propTypes = {
-  url: PropTypes.string.isRequired,
-  onClick: PropTypes.func.isRequired,
-};
