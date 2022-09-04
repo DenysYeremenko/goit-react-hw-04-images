@@ -15,109 +15,51 @@ export const App = () => {
   const [largeImgUrl, setLargeImgUrl] = useState('');
 
   useEffect(() => {
-    queryName && getImages();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryName]);
+    if (!queryName) return;
 
-  useEffect(() => {
-    page > 1 && getMoreImages();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+    async function getImages() {
+      setIsLoading(true);
+      try {
+        const data = await getApi(page, queryName);
 
-  // componentDidUpdate(prevProps, prevState) {
-  //   if (
-  //     (!prevState.images || prevState.queryName !== this.state.queryName) &&
-  //     !this.state.isLoading
-  //   ) {
-  //     this.getImages();
-  //   } else if (prevState.page < this.state.page && !this.state.isLoading) {
-  //     this.getMoreImages();
-  //   }
-  // }
-
-  function getImages() {
-    setIsLoading(true);
-    // this.setState({ isLoading: true });
-    getApi(1, queryName)
-      .then(data => {
         if (!data.length) {
           alert('No images found for this query');
         }
-        const filteredImagesArr = data.map(
-          ({ id, largeImageURL, webformatURL }) => {
-            return { id, largeImageURL, webformatURL };
-          }
-        );
-        setImages(filteredImagesArr);
-        setPage(1);
-        // this.setState({
-        //   images: filteredImagesArr,
-        //   page: 1,
-        // });
-      })
-      .catch(err => {
-        console.log(err);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }
 
-  const getMoreImages = () => {
-    setIsLoading(true);
-    // this.setState({ isLoading: true });
-    getApi(page, queryName)
-      .then(data => {
-        if (!data.length) {
-          alert('Oops! No more images were found for this query');
-        }
         const filteredImagesArr = data.map(
           ({ id, largeImageURL, webformatURL }) => {
             return { id, largeImageURL, webformatURL };
           }
         );
         setImages(prevImages => [...prevImages, ...filteredImagesArr]);
-        // this.setState(prevState => ({
-        //   images: [...prevState.images, ...filteredImagesArr],
-        // }));
-      })
-      .catch(err => {
-        console.log(err);
-      })
-      .finally(() => {
+      } catch (error) {
+        console.log(error);
+      } finally {
         setIsLoading(false);
-        // this.setState({ isLoading: false });
-      });
-  };
+      }
+    }
+
+    getImages();
+  }, [queryName, page]);
 
   const handleSubmit = e => {
     e.preventDefault();
     const inputValue = e.currentTarget.elements[1].value;
+    setPage(1);
     setQueryName(inputValue);
-    // this.setState({
-    //   queryName: inputValue,
-    // });
+    setImages([]);
   };
 
   const handleLoadMore = () => {
     setPage(prevPage => prevPage + 1);
-    // this.setState(prevState => ({
-    //   page: prevState.page + 1,
-    // }));
   };
 
   const changeLargeImgUrl = e => {
     setLargeImgUrl(e.target.dataset.url);
-    // this.setState({
-    //   largeImgUrl: e.target.dataset.url,
-    // });
   };
 
   const closeModal = () => {
     setLargeImgUrl('');
-    // this.setState({
-    //   largeImgUrl: '',
-    // });
   };
 
   return (
